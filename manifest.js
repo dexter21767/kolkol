@@ -6,7 +6,7 @@ var manifest = {
     "id": "community.kolkol",
     "version": "0.0.1",
     "name": "KOLKOL by dexter21767",
-    "description": "stream everything over https, by Dexter21767",
+    "description": "stream everything over https with multiple subtitles",
     "logo": "https://static.netpop.app/img/loklok-white.png",
     "background": "https://github.com/Stremio/stremio-art/raw/main/originals/reiphantomhive1.png",
     "contactEmail": "ahmidiyasser@gmail.com",
