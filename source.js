@@ -1,20 +1,7 @@
 const axios = require('axios').default;
 const sufix = "kolkol_id:";
-const proxy = require('./proxy.js')
-const SocksAgent = require('axios-socks5-agent')
+require('dotenv').config();
 
-const [host,port,username,password] = ('den.socks.ipvanish.com:1080:zABo3KS2UVP:o4BmEcBnU').split(':')
-const { httpAgent, httpsAgent } = SocksAgent({
-    agentOptions: {
-      keepAlive: true,
-    },
-    // socks5
-    host: host,
-    port: port,
-    // socks5 auth
-    username: username,
-    password: password,
-  })
   
 const series_genres = { "All Categories": { "id": "", "name": "All Categories" }, "Drama": { "id": "8", "name": "Drama" }, "Action": { "id": "1", "name": "Action" }, "Romance": { "id": "18", "name": "Romance" }, "Fantasy": { "id": "10", "name": "Fantasy" }, "Animation": { "id": "3", "name": "Animation" }, "Suspense": { "id": "16", "name": "Suspense" }, "Sci-Fi": { "id": "19", "name": "Sci-Fi" }, "Horror": { "id": "13", "name": "Horror" }, "Comedy": { "id": "5", "name": "Comedy" }, "Crime": { "id": "6", "name": "Crime" }, "Adventure": { "id": "2", "name": "Adventure" }, "Thriller": { "id": "23", "name": "Thriller" }, "Family": { "id": "9", "name": "Family" }, "Musical": { "id": "63,14,15", "name": "Musical" }, "War": { "id": "24", "name": "War" }, "LGBTQ": { "id": "65", "name": "LGBTQ" }, "Catastrophe": { "id": "64", "name": "Catastrophe" }, "Documentary": { "id": "7", "name": "Documentary" }, "other": { "id": "7,4,11,12,17,22,21,20,25", "name": "other" } }
 const series_regions = { "All regions": { "id": "", "name": "All regions" }, "America": { "id": "61", "name": "America" }, "Korea": { "id": "53", "name": "Korea" }, "U.K": { "id": "60", "name": "U.K" }, "Japan": { "id": "44", "name": "Japan" }, "Thailand": { "id": "57", "name": "Thailand" }, "Europe": { "id": "37,60,58,50,54,55,48,46,45,34,35,38,39,43,62", "name": "Europe" }, "China": { "id": "32,56", "name": "China" }, "India": { "id": "40", "name": "India" }, "Australia": { "id": "27", "name": "Australia" }, "Indonesia": { "id": "41", "name": "Indonesia" }, "other": { "id": "26,28,29,30,31,33,36,42,47,49,59", "name": "other" } }
@@ -39,7 +26,7 @@ const EpisodesCache = new NodeCache({ stdTTL: (0.5 * 60 * 60), checkperiod: (1 *
 client = axios.create({
     timeout: 5000,
  //   httpAgent, httpsAgent,
- proxy:{host:'182.160.113.58',port:'8000'},
+ proxy:{host:process.env.host,port:process.env.port},
     headers: {
         'lang': 'en',
         'versioncode': '11',
@@ -47,10 +34,9 @@ client = axios.create({
         "Content-Type": 'application/json'
     }
 });
-var proxies ;
+
 async function request(config) {
   
-    //if(!proxies) proxies = (await proxy())[2]
     id = Buffer.from(JSON.stringify(config)).toString('base64')
     let cached = AxiosCache.get(id);
     if (cached) {
