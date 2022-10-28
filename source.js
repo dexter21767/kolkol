@@ -22,7 +22,7 @@ const CatalogCache = new NodeCache({ stdTTL: (0.5 * 60 * 60), checkperiod: (1 * 
 const EpisodesCache = new NodeCache({ stdTTL: (0.5 * 60 * 60), checkperiod: (1 * 60 * 60) });
 
 client = axios.create({
-    timeout: 5000,
+    timeout: 50000,
     headers: {
         'lang': 'en',
         'versioncode': '11',
@@ -137,7 +137,7 @@ async function meta(type, meta_id) {
         console.log(url)
         if (response.msg != "Success") throw "error"
         data = response.data
-        meta = {
+        var meta = {
             type: data.episodeCount ? "series" : "movie",
             id: sufix + data.id,
             name: data.name,
@@ -160,8 +160,8 @@ async function meta(type, meta_id) {
                 id: `${sufix}${meta_id}:${ep.id}`,
                 title: id.name ? id.name : "episode " + ep.seriesNo,
                 //released:,
-                episode: ep.seriesNo.toString(),
-                season: data.seriesNo ? data.seriesNo : "1",
+                episode: ep.seriesNo,
+                season: data.seriesNo ? data.seriesNo : 1,
             })
         }
         if (type == "movie"){
@@ -176,15 +176,15 @@ async function meta(type, meta_id) {
     }
 }
 
-async function search(type, id, query) {
+async function search(type, id, query,skip) {
     try {
         const meta = []
         console.log("search", type, id, query)
         if (skip) skip = Math.round((skip / 10) + 1);
         else skip = 1;
         res_type = types[type]
-        category = genre ? series_genres[genre].id : "";
-        region = id ? series_regions[id].id : "";
+        //category = genre ? series_genres[genre].id : "";
+        //region = id ? series_regions[id].id : "";
         var data = `{"searchKeyWord":"${query}","size": 50,"sort": "","searchType": ""}`;
         console.log(data)
         var config = {
@@ -199,7 +199,7 @@ async function search(type, id, query) {
         data = response.data.searchResults
         for (let i = 0; i < data.length; i++) {
             meta.push({
-                type: type,
+                type: data[i].dramaType.name =="movie"?"movie":"series",
                 id: sufix + data[i].id,
                 name: data[i].name,
                 poster: (data[i].coverVerticalUrl)
