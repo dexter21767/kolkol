@@ -8,7 +8,10 @@
 	},
 	"dependencies": {
 		"axios": "^0.27.2",
+		"axios-socks5-agent": "^1.0.5",
+		"free-proxy": "^0.2.1",
 		"node-cache": "^5.1.2",
+		"socks-proxy-agent": "^7.0.0",
 		"stremio-addon-sdk": "^1.6.9"
 	},
 	"devDependencies": {
