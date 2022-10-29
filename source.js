@@ -27,6 +27,7 @@ const EpisodesCache = new NodeCache({ stdTTL: (0.5 * 60 * 60), checkperiod: (1 *
 client = axios.create({
     timeout: 50000,
  //   httpAgent, httpsAgent,
+ proxy:{host:host,port:port},
     headers: {
         'lang': 'en',
         'versioncode': '11',
@@ -147,7 +148,7 @@ async function meta(type, meta_id) {
         logger.info(url)
         console.log(url)
         logger.info(response)
-
+        console.log(response)
         if (response.msg != "Success") throw "error"
         data = response.data
         var meta = {
@@ -207,7 +208,7 @@ async function search(type, id, query,skip) {
         var data = `{"searchKeyWord":"${query}","size": 50,"sort": "","searchType": ""}`;
         console.log(data)
         var config = {
-            proxy:{host:host,port:port},
+            //proxy:{host:host,port:port},
             method: 'post',
             url: api.apiUrl + '/search/v1/searchWithKeyWord',
             data: data
@@ -249,7 +250,7 @@ async function catalog(type, id, skip, genre) {
         var data = `{"size": 100,"params": "${res_type}","area": "${region}","category": "${category}","year": "","subtitles": "","order": "up"}`;
         console.log(data)
         var config = {
-            proxy:{host:host,port:port},
+            //proxy:{host:host,port:port},
             method: 'post',
             url: api.apiUrl + '/search/v1/search',
             data: data
