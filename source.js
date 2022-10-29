@@ -22,11 +22,11 @@ const subsCache = new NodeCache({ stdTTL: (0.5 * 60 * 60), checkperiod: (1 * 60 
 const MetaCache = new NodeCache({ stdTTL: (0.5 * 60 * 60), checkperiod: (1 * 60 * 60) });
 const CatalogCache = new NodeCache({ stdTTL: (0.5 * 60 * 60), checkperiod: (1 * 60 * 60) });
 const EpisodesCache = new NodeCache({ stdTTL: (0.5 * 60 * 60), checkperiod: (1 * 60 * 60) });
-
+[host,port] = process.env.proxy.split(":") 
 client = axios.create({
     timeout: 5000,
  //   httpAgent, httpsAgent,
- proxy:{host:process.env.host,port:process.env.port},
+ proxy:{host:host,port:port},
     headers: {
         'lang': 'en',
         'versioncode': '11',

@@ -5,17 +5,7 @@ const {catalog,search,meta,stream} = require("./source");
 const manifest = require("./manifest");
 const builder = new addonBuilder(manifest)
 
-builder.defineStreamHandler((args) => {
-	console.log("addon.js streams:", args);
-	if (args.id.match(/kolkol_id:[^xyz]*/i)) {
-		return Promise.resolve(stream(args.type, args.id.split(":")[1],args.id.split(":")[2]))
-		.then((streams) => ({ streams: streams }));
-		//.then((streams) => { console.log('streams', streams)});
-	} else {
-		console.log('stream reject');
-		return Promise.resolve({ streams: [] });
-	}
-});
+
 
 builder.defineCatalogHandler((args) => {
 	console.log("addon.js Catalog:", args);
@@ -30,19 +20,5 @@ builder.defineCatalogHandler((args) => {
 	}
 });
 
-builder.defineMetaHandler((args) => {
-	console.log("addon.js meta:", args);
-
-	if (args.id.match(/kolkol_id:[^xyz]*/i)) {
-		return Promise.resolve(meta(args.type, args.id.split(":")[1]))
-			//.then((metas) => { console.log('metas', metas)});
-			.then((meta) => ({ meta: meta }));
-	} else {
-		console.log('meta reject');
-		return Promise.resolve({ meta: [] });
-	}
-
-
-});
 
 module.exports = builder.getInterface()
