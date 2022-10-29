@@ -1,6 +1,7 @@
 const axios = require('axios').default;
 const sufix = "kolkol_id:";
 require('dotenv').config();
+const logger = require('./logger')
 
   
 const series_genres = { "All Categories": { "id": "", "name": "All Categories" }, "Drama": { "id": "8", "name": "Drama" }, "Action": { "id": "1", "name": "Action" }, "Romance": { "id": "18", "name": "Romance" }, "Fantasy": { "id": "10", "name": "Fantasy" }, "Animation": { "id": "3", "name": "Animation" }, "Suspense": { "id": "16", "name": "Suspense" }, "Sci-Fi": { "id": "19", "name": "Sci-Fi" }, "Horror": { "id": "13", "name": "Horror" }, "Comedy": { "id": "5", "name": "Comedy" }, "Crime": { "id": "6", "name": "Crime" }, "Adventure": { "id": "2", "name": "Adventure" }, "Thriller": { "id": "23", "name": "Thriller" }, "Family": { "id": "9", "name": "Family" }, "Musical": { "id": "63,14,15", "name": "Musical" }, "War": { "id": "24", "name": "War" }, "LGBTQ": { "id": "65", "name": "LGBTQ" }, "Catastrophe": { "id": "64", "name": "Catastrophe" }, "Documentary": { "id": "7", "name": "Documentary" }, "other": { "id": "7,4,11,12,17,22,21,20,25", "name": "other" } }
@@ -49,8 +50,10 @@ async function request(config) {
             })
             .catch(error => {
                 if (error.response) {
+                    logger.error('error on source.js request:', error.response.status, error.response.statusText, error.config.url)
                     console.error('error on source.js request:', error.response.status, error.response.statusText, error.config.url);
                 } else {
+                    logger.error(error)
                     console.error(error);
                 }
             });
@@ -82,8 +85,8 @@ async function getStream(config, def, subs) {
 }
 async function stream(type, meta_id, ep_id) {
     try {
-
-        console.log("stream", type, meta_id, ep_id,)
+        logger.info("stream", type, meta_id, ep_id)
+        console.log("stream", type, meta_id, ep_id)
         ep = EpisodesCache.get(ep_id);
         while(!ep){
             meta = await meta(type, meta_id);
@@ -121,6 +124,7 @@ async function stream(type, meta_id, ep_id) {
         })
 
     } catch (e) {
+        logger.error(e)
         console.error(e)
     }
 
@@ -141,6 +145,7 @@ async function meta(type, meta_id) {
         };
         response = await request(config)
         if (!response) throw "error getting data"
+        logger.info(url)
         console.log(url)
         if (response.msg != "Success") throw "error"
         data = response.data
@@ -179,6 +184,7 @@ async function meta(type, meta_id) {
 
         return meta
     } catch (e) {
+        logger.error(e)
         console.error(e)
     }
 }
@@ -186,6 +192,7 @@ async function meta(type, meta_id) {
 async function search(type, id, query,skip) {
     try {
         const meta = []
+        logger.info("search", type, id,query)
         console.log("search", type, id, query)
         if (skip) skip = Math.round((skip / 10) + 1);
         else skip = 1;
@@ -199,6 +206,7 @@ async function search(type, id, query,skip) {
             url: api.apiUrl + '/search/v1/searchWithKeyWord',
             data: data
         };
+        logger.info(config)
         response = await request(config)
 
         if (!response) throw "error getting data"
@@ -215,6 +223,7 @@ async function search(type, id, query,skip) {
         return meta
 
     } catch (e) {
+        logger.error(e)
         console.error(e)
     }
 }
@@ -222,6 +231,7 @@ async function search(type, id, query,skip) {
 async function catalog(type, id, skip, genre) {
     try {
         const meta = []
+        logger.info("catalog", type, id, skip, genre)
         console.log("catalog", type, id, skip, genre)
         if (skip) skip = Math.round((skip / 10) + 1);
         else skip = 1;
@@ -235,7 +245,7 @@ async function catalog(type, id, skip, genre) {
             url: api.apiUrl + '/search/v1/search',
             data: data
         };
-
+        logger.info(config)
         response = await request(config)
 
         if (!response) throw "error getting data"
@@ -252,6 +262,7 @@ async function catalog(type, id, skip, genre) {
         return meta
 
     } catch (e) {
+        logger.error(e)
         console.error(e)
     }
 }
