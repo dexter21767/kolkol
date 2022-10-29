@@ -167,6 +167,7 @@ async function meta(type, meta_id) {
         const videos=[];
         for (let i = 0; i < data.episodeVo.length; i++) {
             ep = data.episodeVo[i]
+            if(ep && ep.id){
             EpisodesCache.set(ep.id, ep);
             videos.push({
                 id: `${sufix}${meta_id}:${ep.id}`,
@@ -175,6 +176,7 @@ async function meta(type, meta_id) {
                 episode: ep.seriesNo,
                 season: data.seriesNo ? data.seriesNo : 1,
             })
+        }
         }
         if (type == "movie"){
             meta.id = videos[0].id
