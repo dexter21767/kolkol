@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+console.log(process.env)
 
 const { serveHTTP, publishToCentral } = require("stremio-addon-sdk")
 const addonInterface = require("./addon")
