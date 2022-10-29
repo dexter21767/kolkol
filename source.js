@@ -88,10 +88,11 @@ async function stream(type, meta_id, ep_id) {
         logger.info("stream", type, meta_id, ep_id)
         console.log("stream", type, meta_id, ep_id)
         ep = EpisodesCache.get(ep_id);
-        while(!ep){
+        if(!ep){
             meta = await meta(type, meta_id);
-            if(!meta) break
+            if(!meta) return
             ep = EpisodesCache.get(ep_id);
+            if(!ep) return
         }
         let subs = getsubtitles(ep.subtitlingList);
         if (type == "movie") {
