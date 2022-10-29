@@ -198,6 +198,7 @@ async function search(type, id, query,skip) {
         if (skip) skip = Math.round((skip / 10) + 1);
         else skip = 1;
         res_type = types[type]
+        if(!res_type) throw "error no id"
         //category = genre ? series_genres[genre].id : "";
         //region = id ? series_regions[id].id : "";
         var data = `{"searchKeyWord":"${query}","size": 50,"sort": "","searchType": ""}`;
@@ -238,6 +239,7 @@ async function catalog(type, id, skip, genre) {
         if (skip) skip = Math.round((skip / 10) + 1);
         else skip = 1;
         res_type = types[type]
+        if(!res_type) throw "error no id"
         category = genre ? series_genres[genre].id : "";
         region = id ? series_regions[id].id : "";
         var data = `{"size": 100,"params": "${res_type}","area": "${region}","category": "${category}","year": "","subtitles": "","order": "up"}`;
