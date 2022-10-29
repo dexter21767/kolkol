@@ -19,7 +19,7 @@ const api = {
 const NodeCache = require("node-cache");
 const AxiosCache = new NodeCache({ stdTTL: (0.5 * 60 * 60), checkperiod: (1 * 60 * 60) });
 const StreamCache = new NodeCache({ stdTTL: (0.5 * 60 * 60), checkperiod: (1 * 60 * 60) });
-const subsCache = new NodeCache({ stdTTL: (0.5 * 60 * 60), checkperiod: (1 * 60 * 60) });
+const SearchCache = new NodeCache({ stdTTL: (0.5 * 60 * 60), checkperiod: (1 * 60 * 60) });
 const MetaCache = new NodeCache({ stdTTL: (0.5 * 60 * 60), checkperiod: (1 * 60 * 60) });
 const CatalogCache = new NodeCache({ stdTTL: (0.5 * 60 * 60), checkperiod: (1 * 60 * 60) });
 const EpisodesCache = new NodeCache({ stdTTL: (0.5 * 60 * 60), checkperiod: (1 * 60 * 60) });
@@ -144,6 +144,8 @@ async function meta(type, meta_id) {
             method: "get",
             url: url,
         };
+        cached = MetaCache.get(url)
+        if(cached) return cached
         response = await request(config)
         if (!response) throw "error getting data"
         logger.info(url)
@@ -186,7 +188,8 @@ async function meta(type, meta_id) {
         }else {
             meta.videos = videos;
         }
-
+         
+        if(meta) MetaCache.set(url,meta)
         return meta
     } catch (e) {
         logger.error(e)
@@ -196,16 +199,15 @@ async function meta(type, meta_id) {
 
 async function search(type, id, query,skip) {
     try {
-        if(!id) throw "error no id"
         const meta = []
         logger.info("search", type, id,query)
         console.log("search", type, id, query)
         if (skip) skip = Math.round((skip / 10) + 1);
         else skip = 1;
-        res_type = types[type]
-        if(!res_type) throw "error no id"
-        //category = genre ? series_genres[genre].id : "";
-        //region = id ? series_regions[id].id : "";
+        
+        cached = SearchCache.get(query)
+        if(cached) return cached
+
         var data = `{"searchKeyWord":"${query}","size": 50,"sort": "","searchType": ""}`;
         console.log(data)
         var config = {
@@ -228,6 +230,7 @@ async function search(type, id, query,skip) {
                 poster: (data[i].coverVerticalUrl)
             })
         }
+        if(meta) SearchCache.set(query,meta)
         return meta
 
     } catch (e) {
@@ -238,6 +241,9 @@ async function search(type, id, query,skip) {
 
 async function catalog(type, id, skip, genre) {
     try {
+        cache_id =`${type}_${id}_${skip}_${genre}`
+        cached = SearchCache.get(cache_id)
+        if(cached) return cached
         if(!id) throw "error no id"
         const meta = []
         logger.info("catalog", type, id, skip, genre)
@@ -270,6 +276,7 @@ async function catalog(type, id, skip, genre) {
                 poster: data[i].coverVerticalUrl
             })
         }
+        if(meta) SearchCache.set(cache_id,meta)
         return meta
 
     } catch (e) {
