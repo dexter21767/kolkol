@@ -146,6 +146,8 @@ async function meta(type, meta_id) {
         if (!response) throw "error getting data"
         logger.info(url)
         console.log(url)
+        logger.info(response)
+
         if (response.msg != "Success") throw "error"
         data = response.data
         var meta = {
