@@ -191,6 +191,7 @@ async function meta(type, meta_id) {
 
 async function search(type, id, query,skip) {
     try {
+        if(!id) throw "error no id"
         const meta = []
         logger.info("search", type, id,query)
         console.log("search", type, id, query)
@@ -230,6 +231,7 @@ async function search(type, id, query,skip) {
 
 async function catalog(type, id, skip, genre) {
     try {
+        if(!id) throw "error no id"
         const meta = []
         logger.info("catalog", type, id, skip, genre)
         console.log("catalog", type, id, skip, genre)
