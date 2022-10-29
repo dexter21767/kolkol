@@ -25,7 +25,7 @@ const CatalogCache = new NodeCache({ stdTTL: (0.5 * 60 * 60), checkperiod: (1 * 
 const EpisodesCache = new NodeCache({ stdTTL: (0.5 * 60 * 60), checkperiod: (1 * 60 * 60) });
 [host,port] = process.env.proxy.split(":") 
 client = axios.create({
-    timeout: 5000,
+    timeout: 50000,
  //   httpAgent, httpsAgent,
  proxy:{host:host,port:port},
     headers: {
