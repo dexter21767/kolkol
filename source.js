@@ -25,7 +25,7 @@ const CatalogCache = new NodeCache({ stdTTL: (0.5 * 60 * 60), checkperiod: (1 * 
 const EpisodesCache = new NodeCache({ stdTTL: (0.5 * 60 * 60), checkperiod: (1 * 60 * 60) });
 [host,port] = process.env.proxy.split(":") 
 client = axios.create({
-    timeout: 50000,
+    timeout: 150000,
  //   httpAgent, httpsAgent,
  proxy:{host:host,port:port},
     headers: {
@@ -87,6 +87,7 @@ async function stream(type, meta_id, ep_id) {
     try {
         logger.info("stream", type, meta_id, ep_id)
         console.log("stream", type, meta_id, ep_id)
+        if(!ep_id) throw "no ep_id"
         ep = EpisodesCache.get(ep_id);
         if(!ep){
             meta = await meta(type, meta_id);
@@ -150,9 +151,9 @@ async function meta(type, meta_id) {
         if (!response) throw "error getting data"
         logger.info(url)
         console.log(url)
-        logger.info(response)
-        console.log(response)
-        if (response.msg != "Success") throw "error"
+        /*logger.info(response)
+        console.log(response)*/
+        if (response.msg != "Success") throw response.msg
         data = response.data
         var meta = {
             type: data.episodeCount ? "series" : "movie",
