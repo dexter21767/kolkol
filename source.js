@@ -89,7 +89,8 @@ async function stream(type, meta_id, ep_id) {
 
         console.log("stream", type, meta_id, ep_id,)
         if(!ep_id) return [];
-        ep = EpisodesCache.get(ep_id);
+        let cacheID = `${type}_${meta_id}_${ep.id}`
+        ep = EpisodesCache.get(cacheID);
         if(!ep) return [];
 
         let subs = getsubtitles(ep.subtitlingList);
@@ -164,7 +165,8 @@ async function meta(type, meta_id) {
         const videos=[];
         for (let i = 0; i < data.episodeVo.length; i++) {
             ep = data.episodeVo[i]
-            EpisodesCache.set(ep.id, ep);
+            let cacheID = `${type}_${meta_id}_${ep.id}`
+            EpisodesCache.set(cacheID, ep);
             videos.push({
                 id: `${sufix}${meta_id}:${ep.id}`,
                 title: id.name ? id.name : "episode " + ep.seriesNo,
