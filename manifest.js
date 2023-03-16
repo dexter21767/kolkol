@@ -75,7 +75,7 @@ for (let types = 0; types < list.data.length; types++) {
     for (let items = 0; items < list.data[types].screeningItems[0].items.length; items++) {
         manifest.catalogs.push({
             id: list.data[types].screeningItems[0].items[items].name,
-            type: "KOLKOL_" + type,
+            type: "KOLKOL " + type,
             name: list.data[types].screeningItems[0].items[items].name,
             extra: [
                 //{"name": "genre","isRequired": false,"options": genresArray},    

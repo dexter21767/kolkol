@@ -10,10 +10,23 @@ builder.defineStreamHandler((args) => {
 	if (args.id.match(/kolkol_id:[^xyz]*/i)) {
 		return Promise.resolve(stream(args.type, args.id.split(":")[1],args.id.split(":")[2]))
 		.then((streams) => ({ streams: streams }));
-		//return Promise.resolve({ streams: [] });
+		//.then((streams) => { console.log('streams', streams)});
 	} else {
 		console.log('stream reject');
 		return Promise.resolve({ streams: [] });
+	}
+});
+
+builder.defineCatalogHandler((args) => {
+	console.log("addon.js Catalog:", args);
+	if (args.extra.search) {
+		return Promise.resolve(search(args.type.split(" ")[1],args.id, args.extra.search,args.extra.skip))
+			//.then((metas) => { console.log('metas', metas) });
+			.then((metas) => ({ metas: metas }));
+	} else {
+		return Promise.resolve(catalog(args.type.split(" ")[1], args.id,args.extra.skip,args.extra.genre))
+			//.then((metas) => { console.log('metas', metas) });
+			.then((metas) => ({ metas: metas }));
 	}
 });
 
@@ -22,6 +35,7 @@ builder.defineMetaHandler((args) => {
 
 	if (args.id.match(/kolkol_id:[^xyz]*/i)) {
 		return Promise.resolve(meta(args.type, args.id.split(":")[1]))
+			//.then((metas) => { console.log('metas', metas)});
 			.then((meta) => ({ meta: meta }));
 	} else {
 		console.log('meta reject');
@@ -30,19 +44,5 @@ builder.defineMetaHandler((args) => {
 
 
 });
-
-builder.defineCatalogHandler((args) => {
-	console.log("addon.js Catalog:", args);
-	if (args.extra.search) {
-		return Promise.resolve(search(args.type.split("_")[1],args.id, args.extra.search,args.extra.skip))
-			//.then((metas) => { console.log('metas', metas) });
-			.then((metas) => ({ metas: metas }));
-	} else {
-		return Promise.resolve(catalog(args.type.split("_")[1], args.id,args.extra.skip,args.extra.genre))
-			//.then((metas) => { console.log('metas', metas) });
-			.then((metas) => ({ metas: metas }));
-	}
-});
-
 
 module.exports = builder.getInterface()
