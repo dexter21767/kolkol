@@ -8,6 +8,7 @@
 	},
 	"dependencies": {
 		"axios": "^0.27.2",
+		"dotenv": "^16.0.3",
 		"node-cache": "^5.1.2",
 		"stremio-addon-sdk": "^1.6.9"
 	},
