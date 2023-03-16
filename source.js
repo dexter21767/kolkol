@@ -227,12 +227,14 @@ async function catalog(type, id, skip, genre) {
     try {
         const meta = []
         console.log("catalog", type, id, skip, genre)
-        if (skip) skip = Math.round((skip / 10) + 1);
-        else skip = 1;
+
+        if (typeof skip != "int" || !skip) skip = parseInt(skip) || 0;
+        skip += 100;
         res_type = types[type]
         category = genre ? series_genres[genre].id : "";
         region = id ? series_regions[id].id : "";
-        var data = `{"size": 100,"params": "${res_type}","area": "${region}","category": "${category}","year": "","subtitles": "","order": "up"}`;
+        
+        var data = `{"size": ${skip},"params": "${res_type}","area": "${region}","category": "${category}","year": "","subtitles": "","order": "up"}`;
         console.log(data)
         var config = {
             method: 'post',
@@ -245,6 +247,7 @@ async function catalog(type, id, skip, genre) {
         if (!response) throw "error getting data"
         if (response.msg != "Success") throw "error"
         data = response.data.searchResults
+        console.log(data.length)
         for (let i = 0; i < data.length; i++) {
             meta.push({
                 type: type,
