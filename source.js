@@ -1,7 +1,7 @@
 const axios = require('axios').default;
 require('dotenv').config();
-[host,port] = process.env.proxy.split(":");
-region = process.env.region;
+const [host,port] = process.env.proxy.split(":");
+const region = process.env.region;
 
 const sufix = "kolkol_id:";
 
