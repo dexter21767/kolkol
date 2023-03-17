@@ -40,14 +40,9 @@ client = axios.create({
 });
 
 async function request(config) {
-    id = Buffer.from(JSON.stringify(config)).toString('base64')
-    let cached = AxiosCache.get(id);
-    if (cached) {
-        return cached
-    } else {
+
         return await client(config)
             .then(res => {
-                if (res && res.data) AxiosCache.set(id, res.data);
                 return res.data;
             })
             .catch(error => {
@@ -58,7 +53,7 @@ async function request(config) {
                     console.error(error);
                 }
             });
-    }
+    
 }
 
 
@@ -138,6 +133,9 @@ async function meta(type, meta_id) {
         }
         url = `/movieDrama/get?id=${meta_id}&category=${category}`
         //console.log(url)
+        const cacheID = `${type}_${meta_id}`
+        let cached = MetaCache.get(cacheID)
+        if (cached) return cached
         var config = {
             method: "get",
             url: url,
@@ -180,7 +178,7 @@ async function meta(type, meta_id) {
         }else {
             meta.videos = videos;
         }
-
+        if(meta) MetaCache.set(cacheID,meta)
         return meta
     } catch (e) {
         console.error(e)
@@ -227,13 +225,18 @@ async function catalog(type, id, skip, genre) {
     try {
         const meta = []
         console.log("catalog", type, id, skip, genre)
-
         if (typeof skip != "int" || !skip) skip = parseInt(skip) || 0;
         skip += 100;
         res_type = types[type]
         category = genre ? series_genres[genre].id : "";
         region = id ? series_regions[id].id : "";
         
+
+        const cacheID = `${type}_${id}`;
+        let cached = CatalogCache.get(cacheID)
+        if(cached?.skip >= skip) return cached.meta;
+        
+
         var data = `{"size": ${skip},"params": "${res_type}","area": "${region}","category": "${category}","year": "","subtitles": "","order": "up"}`;
         console.log(data)
         var config = {
@@ -256,6 +259,7 @@ async function catalog(type, id, skip, genre) {
                 poster: encodeURI(data[i].coverVerticalUrl)
             })
         }
+        if(meta) CatalogCache.set(cacheID,{skip,meta})
         return meta
 
     } catch (e) {
