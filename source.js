@@ -165,9 +165,10 @@ async function meta(type, meta_id) {
             ep = data.episodeVo[i]
             let cacheID = `${type}_${meta_id}_${ep.id}`
             EpisodesCache.set(cacheID, ep);
+            console.log(ep.name)
             videos.push({
                 id: `${sufix}${meta_id}:${ep.id}`,
-                title: id.name ? id.name : "episode " + ep.seriesNo,
+                title: ep.name ? ep.name : "episode " + ep.seriesNo,
                 //released:,
                 episode: ep.seriesNo,
                 season: data.seriesNo ? data.seriesNo : 1,
@@ -259,7 +260,7 @@ async function catalog(type, id, skip, genre) {
                 poster: encodeURI(data[i].coverVerticalUrl)
             })
         }
-        if(meta) CatalogCache.set(cacheID,{skip,meta})
+        if(meta?.length) CatalogCache.set(cacheID,{skip,meta})
         return meta
 
     } catch (e) {
