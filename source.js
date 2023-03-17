@@ -235,7 +235,7 @@ async function catalog(type, id, skip, genre) {
 
         const cacheID = `${type}_${id}`;
         let cached = CatalogCache.get(cacheID)
-        if(cached?.skip >= skip) return cached.meta.slice(0,skip+1);
+        if(cached?.skip >= skip) return cached.meta.slice(0,skip);
         
 
         let data = `{"size": ${skip},"params": "${res_type}","area": "${region}","category": "${category}","year": "","subtitles": "","order": "up"}`;
