@@ -145,6 +145,8 @@ async function meta(type, meta_id) {
         console.log(url)
         if (response.msg != "Success") throw "error"
         data = response.data
+        console.log(data);
+        
         var meta = {
             type: data.episodeCount ? "series" : "movie",
             id: sufix + data.id,
@@ -153,12 +155,10 @@ async function meta(type, meta_id) {
             background: encodeURI(data.coverHorizontalUrl),
             genres: data.tagNameList,
             description: data.introduction,
-            releaseInfo: data.year,
+            releaseInfo: data.year.toString(),
             imdbRating: data.score,
+            country: data.areaNameList?.[0],
 
-            country: data.country,
-            id: "kisskh:" + data.id.toString(),
-            name: data.name,
         }
         const videos=[];
         for (let i = 0; i < data.episodeVo.length; i++) {
@@ -172,6 +172,8 @@ async function meta(type, meta_id) {
                 //released:,
                 episode: ep.seriesNo,
                 season: data.seriesNo ? data.seriesNo : 1,
+                released: new Date(data.year.toString()),
+                available: true,
             })
         }
         if (type == "movie"){
