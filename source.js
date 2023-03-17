@@ -151,8 +151,8 @@ async function meta(type, meta_id) {
             type: data.episodeCount ? "series" : "movie",
             id: sufix + data.id,
             name: data.name,
-            poster: (data.coverVerticalUrl),
-            background: (data.coverHorizontalUrl),
+            poster: encodeURI(data.coverVerticalUrl),
+            background: encodeURI(data.coverHorizontalUrl),
             genres: data.tagNameList,
             description: data.introduction,
             releaseInfo: data.year,
@@ -213,7 +213,7 @@ async function search(type, id, query,skip) {
                 type: data[i].dramaType.name =="movie"?"movie":"series",
                 id: sufix + data[i].id,
                 name: data[i].name,
-                poster: (data[i].coverVerticalUrl)
+                poster: encodeURI(data[i].coverVerticalUrl)
             })
         }
         return meta
@@ -253,7 +253,7 @@ async function catalog(type, id, skip, genre) {
                 type: type,
                 id: sufix + data[i].id,
                 name: data[i].name,
-                poster: data[i].coverVerticalUrl
+                poster: encodeURI(data[i].coverVerticalUrl)
             })
         }
         return meta
