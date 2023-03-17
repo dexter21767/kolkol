@@ -1,7 +1,7 @@
 const axios = require('axios').default;
 require('dotenv').config();
-const [host,port] = process.env.proxy.split(":");
-const region = process.env.region;
+const [proxy_host,proxy_port] = process.env.proxy.split(":");
+const proxy_region = process.env.region;
 
 const sufix = "kolkol_id:";
 
@@ -27,10 +27,10 @@ const EpisodesCache = new NodeCache({ stdTTL: (0.5 * 60 * 60), checkperiod: (1 *
 
 client = axios.create({
     baseURL:api.apiUrl,
-    proxy: { protocol: 'http', host: host, port:port } ,
+    proxy: { protocol: 'http', host: proxy_host, port:proxy_port } ,
     timeout: 50000,
     headers: {
-        'proxy-type': region,
+        'proxy-type': proxy_region,
         'lang': 'en',
         'versioncode' : 33,
         clienttype : 'android_tem3',
@@ -228,19 +228,19 @@ async function catalog(type, id, skip, genre) {
         console.log("catalog", type, id, skip, genre)
         if (typeof skip != "int" || !skip) skip = parseInt(skip) || 0;
         skip += 100;
-        res_type = types[type]
-        category = genre ? series_genres[genre].id : "";
-        region = id ? series_regions[id].id : "";
+        const res_type = types[type]
+        const category = genre ? series_genres[genre].id : "";
+        const region = id ? series_regions[id].id : "";
         
 
         const cacheID = `${type}_${id}`;
         let cached = CatalogCache.get(cacheID)
-        if(cached?.skip >= skip) return cached.meta;
+        if(cached?.skip >= skip) return cached.meta.slice(0,skip+1);
         
 
-        var data = `{"size": ${skip},"params": "${res_type}","area": "${region}","category": "${category}","year": "","subtitles": "","order": "up"}`;
+        let data = `{"size": ${skip},"params": "${res_type}","area": "${region}","category": "${category}","year": "","subtitles": "","order": "up"}`;
         console.log(data)
-        var config = {
+        const config = {
             method: 'post',
             url: '/search/v1/search',
             data: data
