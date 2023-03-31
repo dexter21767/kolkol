@@ -1,6 +1,6 @@
 {
 	"name": "stremio-addon-kolkol",
-	"version": "0.0.1",
+	"version": "0.1.0",
 	"description": "stream everything over https, by Dexter21767",
 	"scripts": {
 		"start": "node server.js",

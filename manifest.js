@@ -4,7 +4,7 @@ const list = require("./lists.json")
 //{"name": "skip","isRequired": false,"options": [0,100,200,300]},
 var manifest = {
     "id": "community.kolkol",
-    "version": "0.0.1",
+    "version": "0.1.0",
     "name": "KOLKOL by dexter21767",
     "description": "stream everything over https with multiple subtitles",
     "logo": "https://static.netpop.app/img/loklok-white.png",
@@ -13,43 +13,20 @@ var manifest = {
     "catalogs": [
         {
             id: "kolkol_search",
-            type: "series",
+            type: "KOLKOL",
             name: "KOLKOL search",
             extra: [
                 { "name": "search", "isRequired": true },
-                { "name": "skip", "isRequired": false, "options": [0, 100, 200, 300] }
             ]
         }
     ],
-    "resources": [
-        {
-            "name": "stream",
-            "types": [
-                "movie",
-                "series",
-                "anime"
-            ],
-            "idPrefixes": [
-                "kolkol_id:"
-            ]
-        },
-        {
-            "name": "meta",
-            "types": [
-                "movie",
-                "series",
-                "anime"
-            ],
-            "idPrefixes": [
-                "kolkol_id:"
-            ]
-        }
-    ],
+    "resources": ["stream","meta"],
     "types": [
         "movie",
         "series",
         "anime"
     ],
+    "idPrefixes": ["kolkol_id:"],
     "behaviorHints": {
         "configurable": false,
         "configurationRequired": false

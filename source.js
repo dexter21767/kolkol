@@ -1,6 +1,6 @@
 const axios = require('axios').default;
 require('dotenv').config();
-const [proxy_host,proxy_port] = process.env.proxy.split(":");
+const [proxy_host, proxy_port] = process.env.proxy.split(":");
 const proxy_region = process.env.region;
 
 const sufix = "kolkol_id:";
@@ -18,7 +18,7 @@ const api = {
 }
 
 const NodeCache = require("node-cache");
-const AxiosCache = new NodeCache({ stdTTL: (0.5 * 60 * 60), checkperiod: (1 * 60 * 60) });
+const rawMetaCache = new NodeCache({ stdTTL: (0.5 * 60 * 60), checkperiod: (1 * 60 * 60) });
 const StreamCache = new NodeCache({ stdTTL: (0.5 * 60 * 60), checkperiod: (1 * 60 * 60) });
 const subsCache = new NodeCache({ stdTTL: (0.5 * 60 * 60), checkperiod: (1 * 60 * 60) });
 const MetaCache = new NodeCache({ stdTTL: (0.5 * 60 * 60), checkperiod: (1 * 60 * 60) });
@@ -26,14 +26,14 @@ const CatalogCache = new NodeCache({ stdTTL: (0.5 * 60 * 60), checkperiod: (1 * 
 const EpisodesCache = new NodeCache({ stdTTL: (0.5 * 60 * 60), checkperiod: (1 * 60 * 60) });
 
 client = axios.create({
-    baseURL:api.apiUrl,
-    proxy: { protocol: 'http', host: proxy_host, port:proxy_port } ,
+    baseURL: api.apiUrl,
+    proxy: { protocol: 'http', host: proxy_host, port: proxy_port },
     timeout: 50000,
     headers: {
         'proxy-type': proxy_region,
         'lang': 'en',
-        'versioncode' : 33,
-        clienttype : 'android_tem3',
+        'versioncode': 33,
+        clienttype: 'android_tem3',
         deviceid: randomString(),
         "Content-Type": 'application/json'
     }
@@ -41,19 +41,19 @@ client = axios.create({
 
 async function request(config) {
 
-        return await client(config)
-            .then(res => {
-                return res.data;
-            })
-            .catch(error => {
-                if (error.response) {
-                    console.error(error);
-                    console.error('error on source.js request:', error.response.status, error.response.statusText, error.config.url);
-                } else {
-                    console.error(error);
-                }
-            });
-    
+    return await client(config)
+        .then(res => {
+            return res.data;
+        })
+        .catch(error => {
+            if (error.response) {
+                console.error(error);
+                console.error('error on source.js request:', error.response.status, error.response.statusText, error.config.url);
+            } else {
+                console.error(error);
+            }
+        });
+
 }
 
 
@@ -74,7 +74,7 @@ async function getStream(config, def, subs) {
         res = await request(config)
         if (!res) throw "error"
         data = res.data
-        return ({ url: data.mediaUrl, name: def.code.replace('GROOT_',"KOLKOL "), description: def.description, subtitles: subs })
+        return ({ url: data.mediaUrl, name: def.code.replace('GROOT_', "KOLKOL "), description: def.description, subtitles: subs })
     } catch {
 
     }
@@ -82,11 +82,20 @@ async function getStream(config, def, subs) {
 async function stream(type, meta_id, ep_id) {
     try {
 
-        console.log("stream", type, meta_id, ep_id,)
-        if(!ep_id) return [];
-        let cacheID = `${type}_${meta_id}_${ep.id}`
+        console.log("stream", type, meta_id, ep_id)
+
+        if (!ep_id) {
+            let metadata = MetaCache.get(`${type}_${meta_id}`)
+            if (!metadata) metadata = await meta(type, meta_id);
+            if (!metadata) return [];
+            ep_id = metadata.id.split(':').pop()
+        }
+        let cacheID = `${type}_${meta_id}_${ep_id}`;
+
         ep = EpisodesCache.get(cacheID);
-        if(!ep) return [];
+        if (!ep) return [];
+
+
 
         let subs = getsubtitles(ep.subtitlingList);
         if (type == "movie") {
@@ -145,24 +154,22 @@ async function meta(type, meta_id) {
         console.log(url)
         if (response.msg != "Success") throw "error"
         data = response.data
-        console.log(data);
-        
-        var meta = {
+        //console.log(data);
+        let meta = {
             type: data.episodeCount ? "series" : "movie",
             id: sufix + data.id,
             name: data.name,
             poster: encodeURI(data.coverVerticalUrl),
             background: encodeURI(data.coverHorizontalUrl),
-            genres: data.tagNameList,
-            description: data.introduction,
-            releaseInfo: data.year.toString(),
+            genres: data.tagNameList || [],
+            description: data.introduction || '',
+            releaseInfo: data.year.toString() || '',
             imdbRating: data.score,
             country: data.areaNameList?.[0],
 
         }
-        const videos=[];
-        for (let i = 0; i < data.episodeVo.length; i++) {
-            ep = data.episodeVo[i]
+        const videos = [];
+        data.episodeVo.forEach(ep => {
             let cacheID = `${type}_${meta_id}_${ep.id}`
             EpisodesCache.set(cacheID, ep);
             console.log(ep.name)
@@ -175,22 +182,25 @@ async function meta(type, meta_id) {
                 released: new Date(data.year.toString()),
                 available: true,
             })
-        }
-        if (type == "movie"){
+        })
+
+        if (type == "movie") {
             meta.id = videos[0].id
-        }else {
+            meta.behaviorHints = { "defaultVideoId": videos[0].id }
+        }
+        else {
             meta.videos = videos;
         }
-        if(meta) MetaCache.set(cacheID,meta)
+        if (meta) MetaCache.set(cacheID, meta)
         return meta
     } catch (e) {
         console.error(e)
     }
 }
 
-async function search(type, id, query,skip) {
+async function search(type, id, query, skip) {
     try {
-        const meta = []
+        const metas = []
         console.log("search", type, id, query)
         if (skip) skip = Math.round((skip / 10) + 1);
         else skip = 1;
@@ -208,16 +218,19 @@ async function search(type, id, query,skip) {
 
         if (!response) throw "error getting data"
         if (response.msg != "Success") throw "error"
-        data = response.data.searchResults
-        for (let i = 0; i < data.length; i++) {
-            meta.push({
-                type: data[i].dramaType.name =="movie"?"movie":"series",
-                id: sufix + data[i].id,
-                name: data[i].name,
-                poster: encodeURI(data[i].coverVerticalUrl)
-            })
-        }
-        return meta
+        searchResults = response.data.searchResults
+        searchResults.forEach(Result => {
+            let meta = {
+                type: Result.dramaType.name == "movie" ? "movie" : "series",
+                id: sufix + Result.id,
+                name: Result.name,
+                poster: encodeURI(Result.coverVerticalUrl)
+            }
+            if (meta.type == "movie") meta.behaviorHints = { "defaultVideoId": meta.id }
+            metas.push(meta)
+
+        });
+        return metas
 
     } catch (e) {
         console.error(e)
@@ -226,19 +239,19 @@ async function search(type, id, query,skip) {
 
 async function catalog(type, id, skip, genre) {
     try {
-        const meta = []
+        const metas = []
         console.log("catalog", type, id, skip, genre)
         if (typeof skip != "int" || !skip) skip = parseInt(skip) || 0;
         skip += 100;
         const res_type = types[type]
         const category = genre ? series_genres[genre].id : "";
         const region = id ? series_regions[id].id : "";
-        
+
 
         const cacheID = `${type}_${id}`;
         let cached = CatalogCache.get(cacheID)
-        if(cached?.skip >= skip) return cached.meta.slice(0,skip);
-        
+        if (cached?.skip >= skip) return cached.metas.slice(0, skip);
+
 
         let data = `{"size": ${skip},"params": "${res_type}","area": "${region}","category": "${category}","year": "","subtitles": "","order": "up"}`;
         console.log(data)
@@ -252,18 +265,20 @@ async function catalog(type, id, skip, genre) {
 
         if (!response) throw "error getting data"
         if (response.msg != "Success") throw "error"
-        data = response.data.searchResults
-        console.log(data.length)
-        for (let i = 0; i < data.length; i++) {
-            meta.push({
+
+        searchResults = response.data.searchResults
+        searchResults.forEach(Result => {
+            let meta = {
                 type: type,
-                id: sufix + data[i].id,
-                name: data[i].name,
-                poster: encodeURI(data[i].coverVerticalUrl)
-            })
-        }
-        if(meta?.length) CatalogCache.set(cacheID,{skip,meta})
-        return meta
+                id: sufix + Result.id,
+                name: Result.name,
+                poster: encodeURI(Result.coverVerticalUrl)
+            }
+            if (meta.type == "movie") meta.behaviorHints = { "defaultVideoId": meta.id }
+            metas.push(meta)
+        });
+        if (metas?.length) CatalogCache.set(cacheID, { skip, metas })
+        return metas
 
     } catch (e) {
         console.error(e)
@@ -278,7 +293,7 @@ function randomString() {
     for (var i = length; i > 0; --i) result += chars[Math.floor(Math.random() * chars.length)];
     return result;
 }
- 
+
 
 
 module.exports = {
